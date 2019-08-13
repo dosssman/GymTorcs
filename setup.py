@@ -12,7 +12,7 @@ setuptools.setup(
     author_email="dosssman [at] hotmail.fr",
     description="A pip package for the Gym Torcs environment",
     long_description=long_description,
-    # url=
+    url="https://github.com/dosssman/GymTorcs.git",
     packages=setuptools.find_packages(),
     classifiers=[
          "Programming Language :: Python :: 3",
