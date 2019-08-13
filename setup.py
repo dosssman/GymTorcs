@@ -9,7 +9,7 @@ setuptools.setup(
     # scripts=['gym_torcs'],
     install_requires=['psutil', 'gym'],
     author="Rousslan F. J. Dossa",
-    author_email="dosssman [at] hotmail.fr",
+    author_email="dosssman@hotmail.fr",
     description="A pip package for the Gym Torcs environment",
     long_description=long_description,
     url="https://github.com/dosssman/GymTorcs.git",
