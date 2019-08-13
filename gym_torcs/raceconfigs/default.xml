@@ -54,7 +54,6 @@
       <attnum name="idx" val="0"/>
       <attstr name="module" val="scr_server"/>
     </section>
-
   </section>
 
   <section name="Configuration">

@@ -38,7 +38,7 @@ import gym_torcs
 from gym_torcs.sample_agent import Agent
 
 try:
-  # Instancciate the environment
+  # Instantiate the environment
   env = gym.make( "Torcs-v0")
 
   o ,r, done = env.reset(), 0., False

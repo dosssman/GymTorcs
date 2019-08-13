@@ -42,7 +42,8 @@ class TorcsEnv( gym.Env):
         hard_reset_interval=11,
         randomisation=False,
         profile_reuse_ep=500,
-        rank=0):
+        rank=0,
+        obs_preprocess_fn=None):
 
         # Set the default raceconfig file
         if race_config_path is None:
@@ -79,9 +80,14 @@ class TorcsEnv( gym.Env):
         self.damage = damage
         self.recdata = recdata
         self.noisy = noisy
+
+        # Treack randomization related
         self.randomisation = randomisation
         self.profile_reuse_count = 0
         self.profile_reuse_ep = profile_reuse_ep
+
+        # Function to preprocess the standard observation to match the user's preference
+        self.obs_preprocess_fn = obs_preprocess_fn
 
         self.initial_run = True
 
@@ -159,10 +165,11 @@ class TorcsEnv( gym.Env):
         # self.action_space.n = len( self._disc_action_set)
 
         #Temporary switch to discrete actions
-        if throttle is False:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
-        else:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
+        # This shoudl not be
+        # if throttle is False:
+        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
+        # else:
+        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
 
         if vision is False:
             # Original
