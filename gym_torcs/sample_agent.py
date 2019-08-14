@@ -20,7 +20,7 @@ class Agent(object):
             # focus, speedX, speedY, speedZ, angle, damage, opponents, rpm, track, trackPos, wheelSpinVel, lap = ob
             pass
         else:
-            focus, speedX, speedY, speedZ, opponents, rpm, track, wheelSpinVel, vision = ob
+            # focus, speedX, speedY, speedZ, opponents, rpm, track, wheelSpinVel, vision = ob
 
             """ The code below is for checking the vision input. This is very heavy for real-time Control
                 So you may need to remove.
@@ -35,5 +35,6 @@ class Agent(object):
             plt.draw()
             plt.pause(0.001)
             """
+            pass
 
         return np.tanh(np.random.randn(self.dim_action)) # random action
