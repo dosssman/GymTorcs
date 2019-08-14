@@ -9,18 +9,18 @@ Coming soon: Installing vtorcs-RL-color with scripts for Ubuntu, CentOS and Arch
 
 ## Manual
 Clone this repository:
-```
+```bash
 git clone https://github.com/dosssman/GymTorcs.git && cd GymTorcs
 ```
 
 Install as a python dependency:
 
-```
+```bash
 pip install -e .
 ```
 
 ## Using Pip
-```
+```bash
 pip install gym-torcs
 ```
 
@@ -30,7 +30,7 @@ pip install gym-torcs
 
 Instantiate the Torcs Gym Ennvironment using gym.make("Torcs-v0"), and optionnaly passing more parameters. (Parameter list coming soon)
 
-```
+```python
 import gym
 
 # Gym Torcs dep.
@@ -64,7 +64,7 @@ or whatever observatio format you might require, based on the dictionary of
 observation values.
 
 Here is an example:
-```
+```python
 # Builds an array with observations such as angle, track, speeds, etc...
 def obs_preprocess_fn(dict_obs):
      return np.hstack((dict_obs['angle'],
@@ -78,18 +78,19 @@ def obs_preprocess_fn(dict_obs):
          dict_obs['opponents']))
 ```
 Another one:
-```
+```python
 # Return only the agent's FOV as an RGB array.
 
 def obs_preprocess_fn( dict_obs):
     return dict_obs['img']
 ```
 Then pass it during the environment creation:
-```
+```python
 env = gym.make( 'Torcs-v0', vision=vision, obs_preprocess_fn=obs_preprocess_fn)
 ```
 
 ## Parameter list:
+
 |      Parameter      |      Values      |            Desc.             |
 |---------------------|------------------|------------------------------|
 |throttle             | True, False      | Acceleration enabled or not  |
