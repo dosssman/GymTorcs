@@ -57,7 +57,8 @@ class TorcsEnv( gym.Env):
             'track': 200.,
             'trackPos': 1.,
             'wheelSpinVel': 100.,
-            "lap": 100
+            "lap": 100,
+            "img": 255
         }
         self.obs_minima = {'focus': 0.,
             'speedX': 0., 'speedY': 0., 'speedZ': 0.,
@@ -67,7 +68,8 @@ class TorcsEnv( gym.Env):
             'track': 0.,
             'trackPos': 0.,
             'wheelSpinVel': 0.,
-            "lap": 0
+            "lap": 0,
+            "img": 0
         }
         self.obs_dtypes = {
             'focus': np.float32,
@@ -81,7 +83,20 @@ class TorcsEnv( gym.Env):
             'track': np.float32,
             'trackPos': np.float32,
             'wheelSpinVel': np.float32,
-            "lap": np.uint8
+            "lap": np.uint8,
+            "img": np.uint8
+        }
+        self.obs_dim = {'focus': 5,
+            'speedX': 1, 'speedY': 1, 'speedZ': 1,
+            'angle': 1, 'damage': 1,
+            'opponents': 36,
+            'rpm': 1,
+            'track': 19,
+            'trackPos': 1,
+            'wheelSpinVel': 4,
+            "lap": 1,
+            "img": 1
+            # "img": 64*64*3
         }
 
         if obs_vars is None:
@@ -112,15 +127,22 @@ class TorcsEnv( gym.Env):
         self.obs_normalization = obs_normalization
         self.obs_preprocess_fn = obs_preprocess_fn
 
-        if self.obs_preprocess_fn is None:
-            print( "### DEBUG: Preprocess is none")
-        else:
-            print( "### DEBUG: Preprocess in not oe")
-
         # Set the default raceconfig file
         if race_config_path is None:
             race_config_path = os.path.join( os.path.dirname(os.path.realpath(__file__)),
                 "raceconfigs/default.xml")
+
+        #OpenAI Gym - Baselines and SubVecEnv compat fix
+        self.seed_value = 42
+
+        if len(self.obs_vars) == 1 and self.obs_vars[0] == "img":
+            # VIsion only as observation
+            self.observation_space = spaces.Box(low=0, high=255, shape=( 64, 64 ,3), dtype=np.uint8)
+        else:
+            high = np.hstack([ [self.obs_maxima[obs_name]] * self.obs_dim[obs_name] for obs_name in self.obs_vars])
+            low = np.hstack([ [self.obs_minima[obs_name]] * self.obs_dim[obs_name] for obs_name in self.obs_vars])
+
+            self.observation_space = spaces.Box( low=low, high=high, dtype=DEF_BOX_DTYPE)
 
         # Action spaces
         if throttle and gear_change:
@@ -227,54 +249,6 @@ class TorcsEnv( gym.Env):
         obs = client.S.d  # Get the current full-observation from torcs
         """
 
-        #OpenAI Gym - Baselines and SubVecEnv compat fix
-        self.seed_value = 42
-
-        # self._disc_action_set = np.zeros( 3, dtype=np.intc)
-        # self.action_space = spaces.Discrete( len( self._disc_action_set))
-        # self.action_space.n = len( self._disc_action_set)
-
-        #Temporary switch to discrete actions
-        # This shoudl not be
-        # if throttle is False:
-        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
-        # else:
-        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
-
-        if vision is False:
-            # Original
-            # high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf])
-            # low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf])
-            # self.observation_space = spaces.Box(low=low, high=high, dtype=DEF_BOX_DTYPE)
-
-            # Baselines compatibility support, also
-            # Specs found here: http://xed.ch/help/torcs.html
-            # Also used for automatic observation normalizations in baselines
-            high = np.hstack(( math.pi, # Angle
-                               np.array( [ 1.0 for _ in range( 19)]), # track
-                               np.inf, # trackPos
-                               np.inf, np.inf, np.inf,  # speedX, speedY, speedZ
-                               np.array( [ 500.0 for _ in range( 4)]), # wheelSpinVel ( Didn't really check max)
-                               np.inf, # rpm
-                               np.array( [ 1.0 for _ in range( 36)])
-                ))
-
-            low = np.hstack(( -math.pi, # Angle
-                               np.array( [ -1.0 for _ in range( 19)]), # track
-                               -np.inf, # trackPos
-                               -np.inf, -np.inf, -np.inf,  # speedX, speedY, speedZ
-                               np.array( [ 0.0 for _ in range( 4)]), # wheelSpinVel ( Didn't really check max)
-                               0.0, # rpm
-                               np.array( [ -1.0 for _ in range( 36)])
-                ))
-
-            self.observation_space = spaces.Box(low=low, high=high, dtype=DEF_BOX_DTYPE)
-
-        else:
-            # high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf, 255])
-            # low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
-            self.observation_space = spaces.Box(low=0, high=255, shape=( 64, 64 ,1), dtype=np.uint8)
-
     def randomise_track(self):
         # Desc: Randomizes the init positions of the bots, and luckily the agents
         # TODO: Randomize training tracks
@@ -357,10 +331,6 @@ class TorcsEnv( gym.Env):
        #print("Step")
         # convert thisAction to the actual torcs actionstr
         client = self.client
-
-        # print( "#### DEBUG : About to pass action to Server ?\n")
-        # print( u)
-        # input()
 
         this_action = self.agent_to_torcs( u)
 
@@ -634,85 +604,3 @@ class TorcsEnv( gym.Env):
             return self.obs_preprocess_fn( dict_obs)
 
         return dict_obs
-
-        # # The original version, which is now ignored
-        # if not self.vision:
-        #     names = ['focus',
-        #              'speedX', 'speedY', 'speedZ', 'angle', 'damage',
-        #              'opponents',
-        #              'rpm',
-        #              'track',
-        #              'trackPos',
-        #              'wheelSpinVel', "lap"]
-        #
-        #     Observation = col.namedtuple('Observaion', names)
-        #
-        #     #Filtering out observation
-        #     #return np.concatenate([
-        #     #        [np.array(raw_obs['speedX'], dtype=np.float32)/self.default_speed],
-        #     #        [np.array(raw_obs['speedY'], dtype=np.float32)/self.default_speed],
-        #     #        [np.array(raw_obs['speedZ'], dtype=np.float32)/self.default_speed],
-        #     #        np.array(raw_obs['track'], dtype=np.float32)/200.]
-        #     #)
-        #
-        #     # Dosssman custom, this is so wrong, on so many levels. But time aint't waiting for no one so...
-        #     return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
-        #                        speedX=np.array(raw_obs['speedX'], dtype=np.float32)/300.0,
-        #                        speedY=np.array(raw_obs['speedY'], dtype=np.float32)/300.0,
-        #                        speedZ=np.array(raw_obs['speedZ'], dtype=np.float32)/300.0,
-        #                        angle=np.array(raw_obs['angle'], dtype=np.float32)/3.1416,
-        #                        damage=np.array(raw_obs['damage'], dtype=np.float32),
-        #                        opponents=np.array(raw_obs['opponents'], dtype=np.float32)/200.,
-        #                        rpm=np.array(raw_obs['rpm'], dtype=np.float32)/10000,
-        #                        track=np.array(raw_obs['track'], dtype=np.float32)/200.,
-        #                        trackPos=np.array(raw_obs['trackPos'], dtype=np.float32)/1.,
-        #                        wheelSpinVel=np.array(raw_obs['wheelSpinVel'], dtype=np.float32)/ 100.0,
-        #                        lap=np.array( raw_obs["lap"], dtype=np.uint8))
-        # else:
-        #     names = ['focus',
-        #              'speedX', 'speedY', 'speedZ', 'angle', 'damage',
-        #              'opponents',
-        #              'rpm',
-        #              'track',
-        #              'trackPos',
-        #              'wheelSpinVel', 'lap'
-        #              'img']
-        #     Observation = col.namedtuple('Observaion', names)
-        #
-        #     # print( raw_obs[names[8]])
-        #     # input()
-        #
-        #     # Get RGB from observation
-        #     image_rgb = self.obs_vision_to_image_rgb(raw_obs['img'])
-        #
-        #     # print( len( image_rgb))
-        #     # print( image_rgb.shape)
-        #     # input()
-        #     rsh = np.reshape( image_rgb, [64, 64, 3])
-        #     # return rsh
-        #
-        #     # Original
-        #     # return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
-        #     #                    speedX=np.array(raw_obs['speedX'], dtype=np.float32)/self.default_speed,
-        #     #                    speedY=np.array(raw_obs['speedY'], dtype=np.float32)/self.default_speed,
-        #     #                    speedZ=np.array(raw_obs['speedZ'], dtype=np.float32)/self.default_speed,
-        #     #                    opponents=np.array(raw_obs['opponents'], dtype=np.float32)/200.,
-        #     #                    rpm=np.array(raw_obs['rpm'], dtype=np.float32),
-        #     #                    track=np.array(raw_obs['track'], dtype=np.float32)/200.,
-        #     #                    wheelSpinVel=np.array(raw_obs['wheelSpinVel'], dtype=np.float32),
-        #     #                    img=image_rgb)
-        #
-        #     # Custom
-        #     return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
-        #                        speedX=np.array(raw_obs['speedX'], dtype=np.float32)/self.default_speed,
-        #                        speedY=np.array(raw_obs['speedY'], dtype=np.float32)/self.default_speed,
-        #                        speedZ=np.array(raw_obs['speedZ'], dtype=np.float32)/self.default_speed,
-        #                        angle=np.array(raw_obs['angle'], dtype=np.float32)/3.1416,
-        #                        damage=np.array(raw_obs['damage'], dtype=np.float32),
-        #                        opponents=np.array(raw_obs['opponents'], dtype=np.float32)/200.,
-        #                        rpm=np.array(raw_obs['rpm'], dtype=np.float32),
-        #                        track=np.array(raw_obs['track'], dtype=np.float32)/200.,
-        #                        trackPos=np.array(raw_obs['trackPos'], dtype=np.float32)/1.,
-        #                        wheelSpinVel=np.array(raw_obs['wheelSpinVel'], dtype=np.float32),
-        #                        lap=np.array( raw_obs["lap"], dtype=np.uint8),
-        #                        img=image_rgb)
