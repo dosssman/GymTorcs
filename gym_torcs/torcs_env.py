@@ -121,7 +121,7 @@ class TorcsEnv( gym.Env):
                 obs_vars.append( 'img')
 
             self.obs_vars = obs_vars
-            print( "Self obs vars:", self.obs_vars)
+            # print( "Self obs vars:", self.obs_vars)
 
         # Set default observation preprocessing method
         self.obs_normalization = obs_normalization
