@@ -1,9 +1,22 @@
 # Gym Torcs environment for Pip
 
-More to come ...
+A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun/gym_torcs) with humble improvments such as:
+- Removing the need for `xautomation`: the environment can be started virtually headlessly, skipping the GUI part.
+- Wrapper following the OpenAI Gym standard for environments: you can now instantiate the environment using `gym.make("Torcs-v0")`,
+ which comes in handy when experimenting with stable-baselines algorithms and akin. Also adds proper action and observation spaces.
+- Removes the need to manually reset the Torcs bin (due to memory leak): just define an interval and the library takes care of the rest.
+- Support observation customisation.
+- Extended vtorcs-RL-color to support data recording.
+- Adds race setting randomization ( opponents count, spawning location).
+
+## Coming soon:
+- Support for parallelization
+- Support for multi-agents
+- Circuit selection randomization
+- Better vision-based observation handling.
 
 # Dependencies
-Coming soon: Installing vtorcs-RL-color with scripts for Ubuntu, CentOS and Arch Linux (masterace)
+Coming soon: Automation of the vtorcs-RL-color installing process with scripts for Ubuntu, CentOS 7.2 and Arch Linux.
 
 # Installation
 
@@ -23,7 +36,7 @@ pip install -e .
 ```bash
 pip install gym-torcs
 ```
-
+Note: This git repository is likely to be more up to date.
 # Usage
 
 ## Basic
@@ -105,3 +118,4 @@ env = gym.make( 'Torcs-v0', vision=vision, obs_preprocess_fn=obs_preprocess_fn)
 # References
 - Creating your own Gym environment (https://github.com/openai/gym/blob/master/docs/creating-environments.md)
 - How to build your own pip package (https://dzone.com/articles/executable-package-pip-install)
+- Original Gym Torcs environment (https://github.com/ugo-nama-kun/gym_torcs)
