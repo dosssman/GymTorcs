@@ -8,15 +8,16 @@ A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun
 - Support observation customisation.
 - Extended vtorcs-RL-color to support data recording.
 - Adds race setting randomization ( opponents count, spawning location).
+- Run multiple independent instance of the same environment by using the `rank` argument when creating the env. 
 
 ## Coming soon:
-- Support for parallelization
 - Support for multi-agents
+- Support for multi-agents parallelization
 - Circuit selection randomization
 - Better vision-based observation handling.
 
 # Dependencies
-Coming soon: Automation of the vtorcs-RL-color installing process with scripts for Ubuntu, CentOS 7.2 and Arch Linux.
+Coming soon: Automation scripts for the vtorcs-RL-color installing process with scripts for Ubuntu, CentOS 7.2 and Arch Linux.
 
 # Installation
 

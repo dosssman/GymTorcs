@@ -183,9 +183,15 @@ class TorcsEnv( gym.Env):
         # Default
         self.initial_run = True
 
-        #Raceconfig compat edit
+        # Raceconfig compat edit
         self.torcs_process_id = None
         self.race_config_path = race_config_path
+
+        # Paralelization support
+        self.rank = rank
+        self.server_port = 3000 + self.rank
+        # For one server instance, only one client supported
+        # self.client_port = 3100 + self.rank*100
 
         # Freshly initialised
         if self.randomisation:
@@ -228,6 +234,8 @@ class TorcsEnv( gym.Env):
             args.append( "-recepisodelim %d" % self.rec_episode_limit)
             args.append( "-rectimesteplim %d" % self.rec_timestep_limit)
 
+        # For parallelization support
+        args.append( "-p %d" % self.server_port)
         args.append("&")
 
         # print( "##### DEBUG: Args in init_torcs")
@@ -463,14 +471,14 @@ class TorcsEnv( gym.Env):
         if self.randomisation:
             self.randomise_track()
 
-        self.client = snakeoil3.Client(p=3101, vision=self.vision,
+        self.client = snakeoil3.Client(p=self.server_port, vision=self.vision,
             process_id=self.torcs_process_id,
             race_config_path=self.race_config_path,
             race_speed=self.race_speed,
             rendering=self.rendering, lap_limiter=self.lap_limiter,
             damage=self.damage, recdata=self.recdata, noisy=self.noisy,
             rec_index = self.rec_index,rec_episode_limit=self.rec_episode_limit,
-            rec_timestep_limit=self.rec_timestep_limit)  #Open new UDP in vtorcs
+            rec_timestep_limit=self.rec_timestep_limit, rank=self.rank)  #Open new UDP in vtorcs
 
         self.client.MAX_STEPS = np.inf
 

@@ -125,7 +125,8 @@ class Client():
         self.vision = vision
 
         self.host= 'localhost'
-        self.port= 3001
+        # self.port= 3001
+        self.port = 3000 + rank
         self.sid= 'SCR'
         self.maxEpisodes=1 # "Maximum number of learning episodes to perform"
         self.trackname= 'unknown'
@@ -154,6 +155,7 @@ class Client():
         self.rec_episode_limit = rec_episode_limit
         self.rec_index = rec_index
         self.rank = rank
+        self.server_port = 3000 + self.rank
 
         self.S= ServerState()
         self.R= DriverAction()
@@ -233,6 +235,7 @@ class Client():
                         args.append( "-recepisodelim %d" % self.rec_episode_limit)
                         args.append( "-rectimesteplim %d" % self.rec_timestep_limit)
 
+                    args.append( "-p %d" % self.server_port)
                     args.append("&")
 
                     # print( "##### DEBUG: Args in Snake oil reset")
@@ -364,6 +367,9 @@ class Client():
 
         if self.profile_reuse_count == 0 or self.profile_reuse_count % self.profile_reuse_ep == 0:
             print( "### DEBUG: Generating new profile")
+            # TODO: FInd a way to extract the length of a given track.
+            # The current "2700" is actually the max length of the default track. This will break if used on a track of shorter length.
+
             track_length = 2700 # Extract form torcs maybe
             max_pos_length = int(.7 * track_length) # Floor to 100 tile
             agent_init = random.randint(0,20) * 10
@@ -712,6 +718,7 @@ def drive_example(c):
 
 # ================ MAIN ================
 if __name__ == "__main__":
+    print( "We actually pass here")
     C= Client(p=3101)
     for step in range(C.maxSteps,0,-1):
         C.get_servers_input()
