@@ -58,6 +58,7 @@ import sys
 import getopt
 import os
 import time
+import subprocess
 PI= 3.14159265359
 
 data_size = 2**17
