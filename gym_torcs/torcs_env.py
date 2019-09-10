@@ -565,6 +565,7 @@ class TorcsEnv( gym.Env):
             args.append( "-recepisodelim %d" % self.rec_episode_limit)
             args.append( "-rectimesteplim %d" % self.rec_timestep_limit)
 
+        args.append( "-p %d" % self.server_port)
         args.append("&")
         # print( "##### DEBUG: Args in reset_torcs")
         # print( args)
