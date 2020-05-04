@@ -40,7 +40,7 @@ pip install -e .
 
 ## Using pip and the latest commit of this repository
 ```bash
-pip install -e git+https://github.com/mlmorgan/GymTorcs#egg=gym_torcs
+pip install -e git+https://github.com/dosssman/GymTorcs#egg=gym_torcs
 ```
 
 ## Using PyPi package (not recommended)
