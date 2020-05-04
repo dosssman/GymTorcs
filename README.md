@@ -11,7 +11,6 @@ A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun
 - Run multiple independent instance of the same environment by using the `rank` argument when creating the env.
 
 ## Coming soon:
-- Approriate binaries and compile scripts.
 - Support for multi-agents
 - Support for multi-agents parallelization
 - Circuit selection randomization
