@@ -1,6 +1,6 @@
 # Gym Torcs environment for Pip
 
-A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun/gym_torcs) with humble improvments such as:
+A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun/gym_torcs) with humble improvements such as:
 - Removing the need for `xautomation`: the environment can be started virtually headlessly, skipping the GUI part.
 - Wrapper following the OpenAI Gym standard for environments: you can now instantiate the environment using `gym.make("Torcs-v0")`,
  which comes in handy when experimenting with stable-baselines algorithms and akin. Also adds proper action and observation spaces.
@@ -8,16 +8,21 @@ A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun
 - Support observation customisation.
 - Extended vtorcs-RL-color to support data recording.
 - Adds race setting randomization ( opponents count, spawning location).
-- Run multiple independent instance of the same environment by using the `rank` argument when creating the env. 
+- Run multiple independent instance of the same environment by using the `rank` argument when creating the env.
 
 ## Coming soon:
+- Approriate binaries and compile scripts.
 - Support for multi-agents
 - Support for multi-agents parallelization
 - Circuit selection randomization
 - Better vision-based observation handling.
 
 # Dependencies
-Coming soon: Automation scripts for the vtorcs-RL-color installing process with scripts for Ubuntu, CentOS 7.2 and Arch Linux.
+## Torcs Binaries
+
+This wrapper requires a specific build of the Torcs Binaries, which can be found at https://github.com/dosssman/gym_torqs/tree/torcs_raceconfig
+The `deps_install_script.sh`script automates the installation of critical dependencies as well as the Torcs binaries themselves.
+Tested on 3 different Linux OS only.
 
 # Installation
 
@@ -33,7 +38,12 @@ Install as a python dependency:
 pip install -e .
 ```
 
-## Using Pip
+## Using pip and the latest commit of this repository
+```bash
+pip install -e git+https://github.com/mlmorgan/GymTorcs#egg=gym_torcs
+```
+
+## Using PyPi package (not recommended)
 ```bash
 pip install gym-torcs
 ```
