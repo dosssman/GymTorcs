@@ -10,43 +10,48 @@ A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun
 - Adds race setting randomization ( opponents count, spawning location).
 - Run multiple independent instance of the same environment by using the `rank` argument when creating the env.
 
-## Coming soon:
-- Support for multi-agents
-- Support for multi-agents parallelization
-- Circuit selection randomization
-- Better vision-based observation handling.
-
-# Dependencies
-## Torcs Binaries
-
-This wrapper requires a specific build of the Torcs Binaries, which can be found at https://github.com/dosssman/gym_torqs/tree/torcs_raceconfig
-The `deps_install_script.sh`script automates the installation of critical dependencies as well as the Torcs binaries themselves.
-Tested on 3 different Linux OS only.
+## Potential future work
+[] Flesh out the installation script and include he Torcs binaries in this repository.
+[] More general support for data recording.
+[] Better support for pixel-based training.
+[] Support for multi-agents and parallelization.
+[] More comprehensive circuit parameterization / randomization.
 
 # Installation
+## Dependencies: Torcs Racing Car Simulator Binaries
 
-## Manual
-Clone this repository:
-```bash
-git clone https://github.com/dosssman/GymTorcs.git && cd GymTorcs
-```
+This wrapper requires a specific build of the Torcs Binaries, which can be found at https://github.com/dosssman/gym_torqs/tree/torcs_raceconfig .
 
-Install as a python dependency:
-
-```bash
-pip install -e .
-```
+The `deps_install_script.sh`script automates the installation of critical dependencies as well as the Torcs binaries themselves.
+The installation script was tested on:
+- Ubuntu (16.04,18.04)
+- CentOS 7.2
+- Arch Linux
+there might be some errors occuring, since it was tested on systems where the dependencies had already been installed manually in the first place.
 
 ## Using pip and the latest commit of this repository
 ```bash
 pip install -e git+https://github.com/dosssman/GymTorcs#egg=gym_torcs
 ```
+If you use Conda for virtual environment management, not that you can also add the line `- git+https://github.com/dosssman/GymTorcs#egg=gym_torcs` to have it install it in a similar fashion.
 
-## Using PyPi package (not recommended)
+## Manual (Recommended for in-depth customization)
+Clone this repository, or your own fork of it:
+```bash
+git clone https://github.com/dosssman/GymTorcs.git && cd GymTorcs
+```
+then install the local version
+
+```bash
+pip install -e .
+```
+
+## Using PyPi package (usually lagging behind, hence not recommended)
 ```bash
 pip install gym-torcs
 ```
 Note: This git repository is likely to be more up to date.
+
 # Usage
 
 ## Basic
@@ -83,7 +88,7 @@ use the `obs_preprocess_fn` parameter of gym.make() to pass a customized
 preprocessing function.
 
 The function should take one argument called `dict_obs` and return an array,
-or whatever observatio format you might require, based on the dictionary of
+or whatever observation format you might require, based on the dictionary of
 observation values.
 
 Here is an example:
@@ -102,7 +107,7 @@ def obs_preprocess_fn(dict_obs):
 ```
 Another one:
 ```python
-# Return only the agent's FOV as an RGB array.
+# Return only the agent's FOV as an RGB Image
 
 def obs_preprocess_fn( dict_obs):
     return dict_obs['img']
@@ -125,7 +130,17 @@ env = gym.make( 'Torcs-v0', vision=vision, obs_preprocess_fn=obs_preprocess_fn)
 |obs_normalization    | True, False      | Normalize the obs. values    |
 |...                  | ...              | ...                          |
 
-# References
+# References and Aknowledgement
 - Creating your own Gym environment (https://github.com/openai/gym/blob/master/docs/creating-environments.md)
 - How to build your own pip package (https://dzone.com/articles/executable-package-pip-install)
-- Original Gym Torcs environment (https://github.com/ugo-nama-kun/gym_torcs)
+- Original Gym Torcs environment (https://github.com/ugo-nama-kun/gym_torcs) (Deep gratitude).
+
+# Citation
+In case you would like to cite this repository, please do so using the following BIB data.
+```
+@misc{GymTorcs,
+  title={GymTorcs: An OpenAI Gym-style wrapper for the Torcs Racing Car Simulator},
+  author={Rousslan Fernand Julien Dossa},
+  year={2018}
+}
+```
