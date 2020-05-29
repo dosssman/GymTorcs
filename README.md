@@ -121,6 +121,8 @@ env = gym.make( 'Torcs-v0', vision=vision, obs_preprocess_fn=obs_preprocess_fn)
 
 |      Parameter      |      Values      |            Desc.             |
 |---------------------|------------------|------------------------------|
+|rendering            | True,False       | Disables rendering in the simulation          |
+|torcs_rank           | 0,1,2...         | Defines listening port. Use for parallelization|
 |throttle             | True, False      | Acceleration enabled or not  |
 |gear_change          | True, False      | Gear change enabled or not   |
 |race_config_path     | /path/to/.../.xml| Path to the track conf file  |
@@ -129,6 +131,22 @@ env = gym.make( 'Torcs-v0', vision=vision, obs_preprocess_fn=obs_preprocess_fn)
 |obs_preprocess_fn    | def obs_preprocess_fn|COming soon ...           |
 |obs_normalization    | True, False      | Normalize the obs. values    |
 |...                  | ...              | ...                          |
+
+
+## Disabling rendering for training speed up
+
+To disable rendering during training, just need to pass `rendering=False` when instantiating the environment.
+For example:
+```python
+env = gym.make( 'Torcs-v0', vision=False, rendering=False, obs_preprocess_fn=obs_preprocess_fn)
+```
+Note, however, that once disable, the agent cannot be training with pixel-based observations.
+Also, despite the rendering being disabled, a window will keep popping up from time to time.
+To mitigate it, use `xvfb` so the black window is render on a virtual display:
+```bash
+xvfb-run -a -s "-screen $DISPLAY 640x480x24" python train.py
+```
+with the environment variable `DISPLAY=:0`.
 
 # References and Aknowledgement
 - Creating your own Gym environment (https://github.com/openai/gym/blob/master/docs/creating-environments.md)
