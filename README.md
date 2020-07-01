@@ -4,18 +4,17 @@ A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun
 - Removing the need for `xautomation`: the environment can be started virtually headlessly, skipping the GUI part.
 - Wrapper following the OpenAI Gym standard for environments: you can now instantiate the environment using `gym.make("Torcs-v0")`,
  which comes in handy when experimenting with stable-baselines algorithms and akin. Also adds proper action and observation spaces.
-- Removes the need to manually reset the Torcs bin (due to memory leak): just define an interval and the library takes care of the rest.
-- Support observation customisation.
+- Removes the need to manually reset the Torcs bin (due to memory leak): the interval at which the simulator is reset so as to bypass the memory leak can now be parameterized.
 - Extended vtorcs-RL-color to support data recording.
 - Adds race setting randomization ( opponents count, spawning location).
 - Run multiple independent instance of the same environment by using the `rank` argument when creating the env.
 
 ## Potential future work
-[] Flesh out the installation script and include he Torcs binaries in this repository.
-[] More general support for data recording.
-[] Better support for pixel-based training.
-[] Support for multi-agents and parallelization.
-[] More comprehensive circuit parameterization / randomization.
+- [] Flesh out the installation script and include he Torcs binaries in this repository.
+- [] More general support for data recording.
+- [] Better support for pixel-based training.
+- [] Support for multi-agents and parallelization.
+- [] More comprehensive circuit parameterization / randomization.
 
 # Installation
 ## Dependencies: Torcs Racing Car Simulator Binaries
@@ -29,7 +28,7 @@ The installation script was tested on:
 - Arch Linux
 there might be some errors occuring, since it was tested on systems where the dependencies had already been installed manually in the first place.
 
-## Using pip and the latest commit of this repository
+## Using pip and the latest commit of this repository or your own fork.
 ```bash
 pip install -e git+https://github.com/dosssman/GymTorcs#egg=gym_torcs
 ```
@@ -147,6 +146,194 @@ To mitigate it, use `xvfb` so the black window is render on a virtual display:
 xvfb-run -a -s "-screen $DISPLAY 640x480x24" python train.py
 ```
 with the environment variable `DISPLAY=:0`.
+
+# Recording the players data
+In case you need to record either a human's data or even that of a bot, there is a quicked hacked method that enables you to do so.
+Please note that it only works for a specific set of low-level observations, such as LIDAR-like sensor data.
+You might need to customize and rebuild the Torcs binary where the recording process is handled (for efficiency) to suit your need.
+Data recording also need to following additional setup steps:
+1. Add the data recording folder environment variable, so the Torcs binary knows where to write the data:
+```
+export TORCS_DATA_DIR=/home/<your username>/player_data
+```
+for example.
+
+2. Make sure the Torcs binary can find the configuration files no matter where you run your training scripts from: please edit the file `vtorcs-RL-colors/src/interfaces/graphic.h` that was installed by the `deps_install_script.sh` so as to change `/home/z3r0` at Line 31 to match your path to the config files. (Default is ~/.torcs):
+```
+#define GR_PARAM_FILE		"/home/z3r0/.torcs/config/graph.xml" // Change this to /home/<your user name>/.torcs/config/graph.xml
+```
+Also change the `/home/z3r0` in the file `vtorcs-RL-colors/src/inferfaces/playerpref.h` to match your username, around line 28 to 33:
+```
+#define HM_DRV_FILE  		"/home/z3r0/.torcs/drivers/human/human.xml"
+// dossman edit because Torcs couldn't autopmatically find the file
+// #define HM_PREF_FILE		"drivers/human/preferences.xml"
+#define HM_PREF_FILE		"/home/z3r0/.torcs/drivers/human/preferences.xml"
+```
+
+Make sure to rebuild the binaries by following the steps in the `deps_install_script.sh`, so as to reflect the changes.
+(In case you would want to make it more seemsless, you could try to use the `getenv("HOME")` variable. The hard part is that the path to the config files is defined as a C macro, therefore making it impossible (?) to use that function to directly recover the user's home directory.)
+
+3. Have a race configuration file that suits your recording need ready. Here is a template:
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE params SYSTEM "params.dtd">
+
+
+<params name="Practice">
+  <section name="Header">
+    <attstr name="name" val="Practice"/>
+    <attstr name="description" val="Practice"/>
+    <attnum name="priority" val="100"/>
+    <attstr name="menu image" val="data/img/splash-practice.png"/>
+    <attstr name="run image" val="data/img/splash-run-practice.png"/>
+  </section>
+
+  <section name="Tracks">
+    <attnum name="maximum number" val="1"/>
+    <section name="1">
+      <attstr name="name" val="g-track-1"/>
+      <attstr name="category" val="road"/>
+    </section>
+
+  </section>
+
+  <section name="Races">
+    <section name="1">
+      <attstr name="name" val="Practice"/>
+    </section>
+
+  </section>
+
+  <section name="Practice">
+    <attnum name="laps" val="1"/>
+    <attstr name="type" val="practice"/>
+    <attstr name="starting order" val="drivers list"/>
+    <attstr name="restart" val="yes"/>
+    <attstr name="display mode" val="normal"/>
+    <attstr name="display results" val="yes"/>
+    <attnum name="distance" unit="km" val="0"/>
+    <section name="Starting Grid">
+      <attnum name="rows" val="1"/>
+      <attnum name="distance to start" val="200"/>
+      <attnum name="distance between columns" val="20"/>
+      <attnum name="offset within a column" val="10"/>
+      <attnum name="initial speed" unit="km/h" val="0"/>
+      <attnum name="initial height" unit="m" val="0.2"/>
+    </section>
+
+  </section>
+
+  <section name="Drivers">
+    <attnum name="maximum number" val="11"/>
+    <attstr name="focused module" val="human"/>
+    <attnum name="focused idx" val="1"/>
+    <section name="1">
+      <attnum name="idx" val="1"/>
+      <attstr name="module" val="human"/>
+    </section>
+    <section name="2">
+      <attnum name="idx" val="0"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="3">
+      <attnum name="idx" val="1"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="4">
+      <attnum name="idx" val="2"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="5">
+      <attnum name="idx" val="3"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="6">
+      <attnum name="idx" val="4"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="7">
+      <attnum name="idx" val="5"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="8">
+      <attnum name="idx" val="6"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="9">
+      <attnum name="idx" val="7"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="10">
+      <attnum name="idx" val="8"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+    <section name="11">
+      <attnum name="idx" val="9"/>
+      <attstr name="module" val="fixed"/>
+    </section>
+
+    <!-- Initdist for first driver-->
+
+    <!-- Initdist for first driver-->
+    <attnum name="initdist_1" val="200"/>
+    <attnum name="initdist_2" val="300"/>
+    <attnum name="initdist_3" val="400"/>
+    <attnum name="initdist_4" val="500"/>
+    <attnum name="initdist_5" val="600"/>
+    <attnum name="initdist_6" val="700"/>
+    <attnum name="initdist_7" val="800"/>
+    <attnum name="initdist_8" val="850"/>
+    <attnum name="initdist_9" val="900"/>
+    <attnum name="initdist_10" val="1000"/>
+    <attnum name="initdist_11" val="1150"/>
+
+  </section>
+
+  <section name="Configuration">
+    <attnum name="current configuration" val="4"/>
+    <section name="1">
+      <attstr name="type" val="track select"/>
+    </section>
+
+    <section name="2">
+      <attstr name="type" val="drivers select"/>
+    </section>
+
+    <section name="3">
+      <attstr name="type" val="race config"/>
+      <attstr name="race" val="Practice"/>
+      <section name="Options">
+        <section name="1">
+          <attstr name="type" val="race length"/>
+        </section>
+
+        <section name="2">
+          <attstr name="type" val="display mode"/>
+        </section>
+
+      </section>
+
+   </section>
+  </section>
+
+</params>
+```
+To record a human player for example, make sure you have the human added as a driver in the `<section name="Drivers">` section.
+Please take note of `<section name=?>` as it is used later.
+
+4. To record the data, pass the previously created race config file to the Torcs binary directly. It will start the game, skip the menus and go to the race directly.
+The complete command is as follows:
+```
+torcs -raceconfig $PWD/raceconfig_file.xml -rechum 0 -rectimesteplim 3600
+```
+- Set the argument of `-rechuman` to the *section name* the human driver was affected to.
+- Set the `-rectimesteplim` argument to how many time steps you want to record. Assuming your computer can consistently simulate at 60 FPS, the data will also be recorded at the same frequency.
+
+5. Data record format and processing.
+The data is saved as three separated files:
+- obs.csv: contains the observation data (distance sensor etc...). In my experiments, it was a vector of dimension 65. The data of the whole episode is saved as a single CSV line. Additional processing is require to shape it for an experience replay buffer for example. A starting point would be the following file: https://github.com/dosssman/GymTorcs/files/4681555/csv2npy.zip
+- acs.csv: both steering and acceleration actions are saved (vector of dimension 2) following the same procedure as `obs.csv`.
+- rews.csv: the reward is a scalar, also saved as `acs.csv` and `obs.csv`. Additional preprocessing is required, and a starting point is provided in the csv2npy.zip file mentioned in the `obs.csv` section.
 
 # References and Aknowledgement
 - Creating your own Gym environment (https://github.com/openai/gym/blob/master/docs/creating-environments.md)
