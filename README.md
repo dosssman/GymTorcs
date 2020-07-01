@@ -10,11 +10,11 @@ A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun
 - Run multiple independent instance of the same environment by using the `rank` argument when creating the env.
 
 ## Potential future work
-- [] Flesh out the installation script and include he Torcs binaries in this repository.
-- [] More general support for data recording.
-- [] Better support for pixel-based training.
-- [] Support for multi-agents and parallelization.
-- [] More comprehensive circuit parameterization / randomization.
+- [ ] Flesh out the installation script and include the Torcs binaries in this repository.
+- [ ] Improve data recording feature.
+- [ ] Better support for pixel-based training.
+- [ ] Support for multi-agents and parallelization.
+- [ ] More comprehensive race configuration (circuit parameterization), as well as race randomization.
 
 # Installation
 ## Dependencies: Torcs Racing Car Simulator Binaries
@@ -174,7 +174,7 @@ Make sure to rebuild the binaries by following the steps in the `deps_install_sc
 (In case you would want to make it more seemsless, you could try to use the `getenv("HOME")` variable. The hard part is that the path to the config files is defined as a C macro, therefore making it impossible (?) to use that function to directly recover the user's home directory.)
 
 3. Have a race configuration file that suits your recording need ready. Here is a template:
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE params SYSTEM "params.dtd">
 
