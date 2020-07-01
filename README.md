@@ -335,6 +335,13 @@ The data is saved as three separated files:
 - acs.csv: both steering and acceleration actions are saved (vector of dimension 2) following the same procedure as `obs.csv`.
 - rews.csv: the reward is a scalar, also saved as `acs.csv` and `obs.csv`. Additional preprocessing is required, and a starting point is provided in the csv2npy.zip file mentioned in the `obs.csv` section.
 
+# Potential troubleshouting / Error workarounds
+## AL lib: (EE) ALCplaybackOSS_open: Could not open /dev/dsp: No such device or address
+Depending on your system, the audio card might not be detected by Torcs, which for some reason, absolutely requires it.
+A work around was found namely here: https://ubuntuforums.org/showthread.php?t=2173702 .
+Having installed the `pulseaudio-utils` package or equivalent for your system, prepend the `padsp` command everytime you run the Torcs binary, or your training scripts.
+Intuitively, it will create a virtual audio device which will fool the Torcs simulator to think there is actually one.
+
 # References and Aknowledgement
 - Creating your own Gym environment (https://github.com/openai/gym/blob/master/docs/creating-environments.md)
 - How to build your own pip package (https://dzone.com/articles/executable-package-pip-install)
