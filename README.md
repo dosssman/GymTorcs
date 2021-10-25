@@ -17,7 +17,7 @@ A fork of [ugo-nama-kun's gym_torcs environment](https://github.com/ugo-nama-kun
 - [ ] More comprehensive race configuration (circuit parameterization), as well as race randomization.
 
 ## Project using GymTorcs wrapper
-- [TorchRLILHybrid](https://github.com/dosssman/TorcsRLILHybrid.git) Integration with openai/baselines's GAIL, DDPG and ReMI, a versio that trades off between imitation learning of humans and a DDPG agent.
+- [TorchRLILHybrid](https://github.com/dosssman/TorcsRLILHybrid.git) Integration with openai/baselines's GAIL, DDPG and ReMI, a versio that trades off between imitation learning of humans and a DDPG agent. A _good starting point_ on how to use this wrapper.
 
 
 # Installation
